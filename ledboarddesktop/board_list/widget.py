@@ -1,6 +1,7 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QListWidgetItem, QListWidget
 
+from ledboarddesktop.components import Components
 from ledboardlib.listed_board import ListedBoard
 
 from ledboarddesktop.board_list.listed_board_widget import ListedBoardWidget
@@ -11,6 +12,8 @@ class BoardListWidget(QListWidget):
         super().__init__(parent)
 
         self._widgets: list[ListedBoardWidget] = []
+
+        Components().board_detector.boardsPolled.connect(self.set_boards)
 
     def selected_board(self) -> ListedBoard:
         return self.itemWidget(self.selectedItems()[0]).board if self.selectedItems() else None
