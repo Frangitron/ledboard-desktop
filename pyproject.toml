@@ -1,7 +1,8 @@
 [build-system]
 requires = [
   "setuptools>=46.0",
-  "pythonarduinoserial@git+https://github.com/Frangitron/python-arduino-serial"
+  "ledboardlib@git+https://github.com/Frangitron/ledboard-lib@main",
+  "pyside6-helpers@git+https://github.com/MrFrangipane/pyside6-helpers@main"
 ]
 build-backend = "setuptools.build_meta"
 
