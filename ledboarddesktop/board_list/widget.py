@@ -16,6 +16,13 @@ class BoardListWidget(QListWidget):
         Components().board_detector.boardsPolled.connect(self.set_boards)
         Components().board_detector.boardChanged.connect(self._board_changed)
 
+    def board_widget(self, board: ListedBoard) -> ListedBoardWidget | None:
+        for widget in self._widgets:
+            if widget.board.serial_port_name == board.serial_port_name:
+                return widget
+
+        return None
+
     def selected_board(self) -> ListedBoard:
         return self.itemWidget(self.selectedItems()[0]).board if self.selectedItems() else None
 
@@ -45,9 +52,12 @@ class BoardListWidget(QListWidget):
         if selected_board and not self.selectedItems():
             self.itemSelectionChanged.emit()
 
+    @Slot()
     def _board_changed(self, board: ListedBoard):
-        if self.selected_board() is None:
-            return
+        board_widget = self.board_widget(board)
+        if board_widget is not None:
+            board_widget.set_board(board)
 
-        if self.selected_board().serial_port_name == board.serial_port_name:
+        selected_board = self.selected_board()
+        if selected_board is not None and selected_board.serial_port_name == board.serial_port_name:
             self.itemSelectionChanged.emit()
