@@ -21,7 +21,6 @@ class BoardListWidget(QListWidget):
 
     @Slot()
     def set_boards(self, boards: list[ListedBoard]):
-        print("list set_boards", boards)
         selected_board = self.selected_board()
 
         self.setUpdatesEnabled(False)
