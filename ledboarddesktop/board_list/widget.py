@@ -41,5 +41,5 @@ class BoardListWidget(QListWidget):
         self.blockSignals(False)
         self.setUpdatesEnabled(True)
 
-        # if selected_board and not self.selectedItems():
-        #     self.itemSelectionChanged.emit()
+        if selected_board and not self.selectedItems():
+            self.itemSelectionChanged.emit()
