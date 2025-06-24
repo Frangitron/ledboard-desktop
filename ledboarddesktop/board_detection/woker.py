@@ -27,15 +27,16 @@ class BoardDetectionWorker(QObject):
         self._is_running = False
 
     def _poll(self):
-        boards = self._detection_api.list_boards()
+        boards = {board.serial_port_name: board for board in self._detection_api.list_boards()}
 
-        for board in boards:
+        for board in boards.values():
             if board.serial_port_name not in self._previous_boards:
                 continue
 
             if board.available != self._previous_boards[board.serial_port_name].available:
+                self._previous_boards[board.serial_port_name] = board
                 self.boardChanged.emit(board)
 
-        self._previous_boards = {board.serial_port_name: board for board in boards}
-
-        self.boardsPolled.emit(boards)
+        if self._previous_boards.keys() != boards.keys():
+            self._previous_boards = boards
+            self.boardsPolled.emit(list(boards.values()))

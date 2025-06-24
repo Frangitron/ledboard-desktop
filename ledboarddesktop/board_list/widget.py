@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Qt
 from PySide6.QtWidgets import QListWidgetItem, QListWidget
 
 from ledboardlib import ListedBoard
@@ -14,12 +14,14 @@ class BoardListWidget(QListWidget):
         self._widgets: list[ListedBoardWidget] = []
 
         Components().board_detector.boardsPolled.connect(self.set_boards)
+        Components().board_detector.boardChanged.connect(self._board_changed)
 
     def selected_board(self) -> ListedBoard:
         return self.itemWidget(self.selectedItems()[0]).board if self.selectedItems() else None
 
     @Slot()
-    def set_boards(self, listed_boards: list[ListedBoard]):
+    def set_boards(self, boards: list[ListedBoard]):
+        print("list set_boards", boards)
         selected_board = self.selected_board()
 
         self.setUpdatesEnabled(False)
@@ -28,13 +30,13 @@ class BoardListWidget(QListWidget):
         self.clear()
         self._widgets.clear()
 
-        for listed_board in listed_boards:
-            widget = ListedBoardWidget(listed_board)
+        for board in boards:
+            widget = ListedBoardWidget(board)
             item = QListWidgetItem()
             item.setSizeHint(widget.sizeHint())
             self.addItem(item)
             self.setItemWidget(item, widget)
-            is_selected = listed_board.serial_port_name == selected_board.serial_port_name if selected_board else False
+            is_selected = board.serial_port_name == selected_board.serial_port_name if selected_board else False
             item.setSelected(is_selected)
             self._widgets.append(widget)
 
@@ -42,4 +44,11 @@ class BoardListWidget(QListWidget):
         self.setUpdatesEnabled(True)
 
         if selected_board and not self.selectedItems():
+            self.itemSelectionChanged.emit()
+
+    def _board_changed(self, board: ListedBoard):
+        if self.selected_board() is None:
+            return
+
+        if self.selected_board().serial_port_name == board.serial_port_name:
             self.itemSelectionChanged.emit()
