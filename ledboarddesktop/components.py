@@ -1,5 +1,6 @@
-from ledboarddesktop.board_detection.board_detector import BoardDetector
 from pythonhelpers.singleton_metaclass import SingletonMetaclass
+
+from ledboarddesktop.board_detection.board_detector import BoardDetector
 
 
 class Components(metaclass=SingletonMetaclass):

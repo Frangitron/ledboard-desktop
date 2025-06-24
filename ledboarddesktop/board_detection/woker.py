@@ -1,8 +1,6 @@
 from PySide6.QtCore import QObject, Signal, QThread
-from PySide6.QtGui import QRhiShaderResourceBinding
 
-from ledboardlib.board_detection_api import BoardDetectionApi
-from ledboardlib.listed_board import ListedBoard
+from ledboardlib import BoardDetectionApi, ListedBoard
 
 
 class BoardDetectionWorker(QObject):

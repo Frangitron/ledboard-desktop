@@ -1,13 +1,12 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
-from ledboarddesktop.central_widget import CentralWidget
-from ledboarddesktop.components import Components
 from pyside6helpers import css
 from pyside6helpers import icons
 from pyside6helpers.main_window import MainWindow
 
-from ledboarddesktop.board_detection.board_detector import BoardDetector
+from ledboarddesktop.central_widget import CentralWidget
+from ledboarddesktop.components import Components
 
 
 class Launcher:

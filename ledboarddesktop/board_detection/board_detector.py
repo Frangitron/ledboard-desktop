@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal, QThread
 
-from ledboardlib.listed_board import ListedBoard
+from ledboardlib import ListedBoard
 
 from ledboarddesktop.board_detection.woker import BoardDetectionWorker
 

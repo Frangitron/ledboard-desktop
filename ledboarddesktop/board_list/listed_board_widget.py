@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
 
-from ledboardlib.listed_board import ListedBoard
+from ledboardlib import ListedBoard
 
 
 class ListedBoardWidget(QWidget):

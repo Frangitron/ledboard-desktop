@@ -1,10 +1,10 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QListWidgetItem, QListWidget
 
-from ledboarddesktop.components import Components
-from ledboardlib.listed_board import ListedBoard
+from ledboardlib import ListedBoard
 
 from ledboarddesktop.board_list.listed_board_widget import ListedBoardWidget
+from ledboarddesktop.components import Components
 
 
 class BoardListWidget(QListWidget):

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
 
-from ledboardlib.board_api import BoardApi
+from ledboardlib import BoardApi, ListedBoard
 
 
 class BoardDetailsWidget(QWidget):
@@ -16,7 +16,7 @@ class BoardDetailsWidget(QWidget):
 
         self.setMinimumWidth(250)
 
-    def set_board(self, board):
+    def set_board(self, board: ListedBoard | None):
         self.board = board
 
         if board is None:
