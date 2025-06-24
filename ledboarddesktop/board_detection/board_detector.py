@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, Signal, QThread
+from PySide6.QtCore import QObject, Signal, QThread, Qt
 
 from ledboardlib import ListedBoard
 
@@ -9,6 +9,7 @@ class BoardDetector(QObject):
 
     boardsPolled = Signal(list)
     boardChanged = Signal(ListedBoard)
+    boardRefreshRequested = Signal(ListedBoard)
 
     def __init__(self):
         super().__init__()
@@ -16,6 +17,7 @@ class BoardDetector(QObject):
         self._worker = BoardDetectionWorker()
         self._worker.boardsPolled.connect(self.boardsPolled)
         self._worker.boardChanged.connect(self.boardChanged)
+        self.boardRefreshRequested.connect(self._worker.request_board_refresh)
 
         self._thread = QThread()
         self._worker.moveToThread(self._thread)
@@ -31,3 +33,6 @@ class BoardDetector(QObject):
         self._worker.stop()
         self._thread.quit()
         self._thread.wait()
+
+    def request_board_refresh(self, board: ListedBoard):
+        self.boardRefreshRequested.emit(board)

@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
 
+from ledboarddesktop.components import Components
 from ledboardlib import BoardApi, ListedBoard, UsbSerialException
 
 
@@ -24,7 +25,7 @@ class BoardDetailsWidget(QWidget):
             return
 
         if not board.available:
-            self.label.setText("Board not available")
+            self.label.setText("Board not available...")
             return
 
         try:
@@ -38,4 +39,5 @@ class BoardDetailsWidget(QWidget):
             )
 
         except UsbSerialException:
-            self.label.setText("Usb Serial busy/error")
+            Components().board_detector.request_board_refresh(board)
+            self.label.setText("Usb Serial busy/error...")
