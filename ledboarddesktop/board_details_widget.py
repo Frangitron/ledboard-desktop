@@ -9,6 +9,7 @@ class BoardDetailsWidget(QWidget):
         super().__init__(parent)
 
         self.label = QLabel()
+        self.label.setWordWrap(True)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label)
@@ -16,13 +17,13 @@ class BoardDetailsWidget(QWidget):
         board_communicator = Components().board_communicator
         board_communicator.boardDetailsAcquired.connect(self._details_acquired)
         board_communicator.boardDetailsAcquisitionFailed.connect(
-            lambda: self.label.setText("Communication busy/error")
+            lambda message: self.label.setText(f"Communication busy/error\n\n{message}")
         )
         board_communicator.boardDetailsRequested.connect(
             lambda board: self.label.setText(f"Fetching details for {board.serial_port_name}...")
         )
 
-        self.setMinimumWidth(250)
+        self.setFixedWidth(250)
 
     def _details_acquired(self, hardware_info: dict, hardware_configuration: dict):
         self.label.setText(

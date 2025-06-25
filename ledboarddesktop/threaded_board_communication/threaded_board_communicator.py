@@ -10,7 +10,7 @@ class ThreadedBoardCommunicator(QObject):
     boardChanged = Signal(ListedBoard)
     boardDetailsRequested = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
-    boardDetailsAcquisitionFailed = Signal()
+    boardDetailsAcquisitionFailed = Signal(str)
     boardRefreshRequested = Signal(ListedBoard)
     boardsListed = Signal(list)
 

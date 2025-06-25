@@ -6,7 +6,7 @@ from ledboardlib import (
     HardwareConfiguration,
     HardwareInfo,
     ListedBoard,
-    UsbSerialException,
+    exceptions,
 )
 
 
@@ -14,7 +14,7 @@ class ThreadedBoardCommunicationWorker(QObject):
 
     boardChanged = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
-    boardDetailsAcquisitionFailed = Signal()
+    boardDetailsAcquisitionFailed = Signal(str)
     boardsListed = Signal(list)
 
     def __init__(self, parent=None):
@@ -88,8 +88,8 @@ class ThreadedBoardCommunicationWorker(QObject):
             hardware_configuration = api.get_configuration()
             self.boardDetailsAcquired.emit(hardware_info, hardware_configuration)
 
-        except UsbSerialException:
-            self.boardDetailsAcquisitionFailed.emit()
+        except exceptions.UsbSerialException as e:
+            self.boardDetailsAcquisitionFailed.emit(str(e))
 
         finally:
             self._suspend_polling = False
