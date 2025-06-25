@@ -17,6 +17,7 @@ class BoardListItemWidget(QWidget):
         layout = QGridLayout(self)
 
         self.label = QLabel()
+        self.label.setProperty("isWhite", True)
         layout.addWidget(self.label, 0, 0)
         layout.setColumnStretch(0, 1)
 
