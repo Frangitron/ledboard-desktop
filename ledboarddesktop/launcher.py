@@ -11,6 +11,8 @@ from ledboarddesktop.components import Components
 
 class Launcher:
     def __init__(self):
+        Components().settings.load()
+
         self._app = QApplication([])
         self._app.setApplicationName("LEDBoard")
         self._app.setOrganizationName("Frangitron")
@@ -23,6 +25,7 @@ class Launcher:
         self._main_window.setCentralWidget(self._central_widget)
 
         self._app.aboutToQuit.connect(Components().board_communicator.stop)
+        self._app.aboutToQuit.connect(Components().settings.save)
 
     def run(self):
         self._main_window.show()

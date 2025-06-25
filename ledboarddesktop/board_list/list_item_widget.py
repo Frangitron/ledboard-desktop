@@ -5,7 +5,7 @@ from pyside6helpers import icons
 from ledboardlib import ListedBoard
 
 
-class ListedBoardWidget(QWidget):
+class BoardListItemWidget(QWidget):
 
     def __init__(self, board: ListedBoard, parent=None):
         super().__init__(parent)

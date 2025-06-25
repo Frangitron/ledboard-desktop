@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QListWidgetItem, QListWidget
 
 from ledboardlib import ListedBoard
 
-from ledboarddesktop.board_list.listed_board_widget import ListedBoardWidget
+from ledboarddesktop.board_list.list_item_widget import BoardListItemWidget
 from ledboarddesktop.components import Components
 
 
@@ -11,7 +11,7 @@ class BoardListWidget(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._widgets: list[ListedBoardWidget] = []
+        self._widgets: list[BoardListItemWidget] = []
 
         board_communicator = Components().board_communicator
         board_communicator.boardChanged.connect(self._board_changed)
@@ -20,7 +20,9 @@ class BoardListWidget(QListWidget):
         board_communicator.boardDetailsRequested.connect(lambda: self.setEnabled(False))
         board_communicator.boardsListed.connect(self.set_boards)
 
-    def board_widget(self, board: ListedBoard) -> ListedBoardWidget | None:
+        self.setMinimumWidth(300)
+
+    def board_widget(self, board: ListedBoard) -> BoardListItemWidget | None:
         for widget in self._widgets:
             if widget.board.serial_port_name == board.serial_port_name:
                 return widget
@@ -41,7 +43,7 @@ class BoardListWidget(QListWidget):
         self._widgets.clear()
 
         for board in boards:
-            widget = ListedBoardWidget(board)
+            widget = BoardListItemWidget(board)
             item = QListWidgetItem()
             item.setSizeHint(widget.sizeHint())
             self.addItem(item)
