@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QMessageBox
 
 from pyside6helpers import icons
 
@@ -57,7 +57,19 @@ class BoardListItemWidget(QWidget):
         Components().board_communicator.request_board_reboot(self.board)
 
     def _upload_firmware(self):
-        print(f"Uploading firmware: {self.board.serial_port_name}")
+        response = QMessageBox.warning(
+            self,
+            "Firmware upload",
+            f"Are you sure you want to upload {Components().settings.firmware_filepath} "
+            f"to {self.board.serial_port_name} ?",
+            QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel
+        )
+        if response == QMessageBox.StandardButton.Ok:
+            self.setEnabled(False)
+            Components().board_communicator.request_firmware_upload(
+                self.board,
+                Components().settings.firmware_filepath
+            )
 
     def _upload_points(self):
         print(f"Uploading points: {self.board.serial_port_name}")

@@ -38,7 +38,7 @@ class ThreadedBoardCommunicationWorker(QObject):
         self._detection_api = BoardDetectionApi()
         self._previous_boards: dict[str, ListedBoard] = dict()
         self._requested_for_refresh: list[str] = list()
-        self._requested_for_reboot: list[str] = list()
+        self._waiting_for_reboot: list[str] = list()
 
         self._poll_timer : QTimer | None = None
 
@@ -79,8 +79,8 @@ class ThreadedBoardCommunicationWorker(QObject):
                 self._requested_for_refresh.remove(board.serial_port_name)
                 self.boardChanged.emit(board)
 
-            if board.serial_port_name in self._requested_for_reboot:
-                self._requested_for_reboot.remove(board.serial_port_name)
+            if board.serial_port_name in self._waiting_for_reboot:
+                self._waiting_for_reboot.remove(board.serial_port_name)
                 self.boardRebooted.emit(board)
 
         if self._previous_boards.keys() != boards.keys():
@@ -113,10 +113,24 @@ class ThreadedBoardCommunicationWorker(QObject):
         self._suspend_polling()
         try:
             BoardApi(board.serial_port_name).reboot()
-            self._requested_for_reboot.append(board.serial_port_name)
+            self._waiting_for_reboot.append(board.serial_port_name)
 
         except exceptions.UsbSerialException as e:
             # TODO self.boardRebootRequestFailed.emit(str(e))
+            print(e)
+
+        finally:
+            self._restore_polling()
+
+    @Slot(ListedBoard, str)
+    def request_firmware_upload(self, board: ListedBoard, firmware_filepath: str):
+        self._suspend_polling()
+        try:
+            BoardApi(board.serial_port_name).upload_firmware(firmware_filepath)
+            self._waiting_for_reboot.append(board.serial_port_name)
+
+        except exceptions.UsbSerialException as e:
+            # TODO self.boardFirmwareUploadRequestFailed.emit(str(e))
             print(e)
 
         finally:

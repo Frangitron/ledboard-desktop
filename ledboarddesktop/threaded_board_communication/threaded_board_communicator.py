@@ -53,6 +53,7 @@ class ThreadedBoardCommunicator(QObject):
     boardRebooted = Signal(ListedBoard)
     boardRefreshRequested = Signal(ListedBoard)
     boardsListed = Signal(list)
+    firmwareUploadRequested = Signal(ListedBoard, str)
 
     def __init__(self):
         super().__init__()
@@ -67,6 +68,7 @@ class ThreadedBoardCommunicator(QObject):
         self.boardDetailsRequested.connect(self._worker.request_board_details)
         self.boardRebootRequested.connect(self._worker.request_reboot)
         self.boardRefreshRequested.connect(self._worker.request_board_refresh)
+        self.firmwareUploadRequested.connect(self._worker.request_firmware_upload)
 
         self._thread = QThread()
         self._worker.moveToThread(self._thread)
@@ -91,3 +93,6 @@ class ThreadedBoardCommunicator(QObject):
 
     def request_board_refresh(self, board: ListedBoard):
         self.boardRefreshRequested.emit(board)
+
+    def request_firmware_upload(self, board: ListedBoard, firmware_filepath: str):
+        self.firmwareUploadRequested.emit(board, firmware_filepath)
