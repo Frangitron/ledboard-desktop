@@ -24,5 +24,8 @@ class CentralWidget(QWidget):
 
     def _board_selected(self):
         board = self.board_list_widget.selected_board()
-        if board is not None:
+
+        if board is None:
+            self.board_details_widget.clear()
+        else:
             Components().board_communicator.request_board_details(board)

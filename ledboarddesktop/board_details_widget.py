@@ -35,3 +35,6 @@ class BoardDetailsWidget(QWidget):
             "\n\n" +
             "\n".join(f"{property}: {value}" for property, value in hardware_configuration.__dict__.items())
         )
+
+    def clear(self):
+        self.label.setText("")
