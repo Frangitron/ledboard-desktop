@@ -15,9 +15,9 @@ class BoardListWidget(QListWidget):
 
         board_communicator = Components().board_communicator
         board_communicator.boardChanged.connect(self._board_changed)
-        board_communicator.boardDetailsAcquired.connect(lambda: self.setEnabled(True))
-        board_communicator.boardDetailsAcquisitionFailed.connect(lambda: self.setEnabled(True))
-        board_communicator.boardDetailsRequested.connect(lambda: self.setEnabled(False))
+        board_communicator.boardDetailsAcquired.connect(self._enable_and_focus)
+        board_communicator.boardDetailsAcquisitionFailed.connect(self._enable_and_focus)
+        board_communicator.boardDetailsRequested.connect(self._enable_and_focus)
         board_communicator.boardRebooted.connect(self._board_rebooted)
         board_communicator.boardsListed.connect(self.set_boards)
 
@@ -74,3 +74,8 @@ class BoardListWidget(QListWidget):
         board_widget = self.board_widget(board)
         if board_widget is not None:
             board_widget.setEnabled(True)
+
+    @Slot()
+    def _enable_and_focus(self):
+        self.setEnabled(True)
+        self.setFocus()

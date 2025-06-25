@@ -48,7 +48,7 @@ class BoardListItemWidget(QWidget):
         self.button_upload_points.setEnabled(self.board.available)
 
         if self.board.available:
-            self.label.setText(f"{self.board.serial_port_name} - {self.board.hardware_info.name[:-1]}")
+            self.label.setText(f"{self.board.serial_port_name} - {self.board.hardware_info.name}")
         else:
             self.label.setText(f"{self.board.serial_port_name} - Occupied")
 
