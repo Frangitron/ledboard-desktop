@@ -15,6 +15,7 @@ class ThreadedBoardCommunicationWorker(QObject):
     boardChanged = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
     boardDetailsAcquisitionFailed = Signal(str)
+    boardRebooted = Signal(ListedBoard)
     boardsListed = Signal(list)
 
     def __init__(self, parent=None):
@@ -25,12 +26,13 @@ class ThreadedBoardCommunicationWorker(QObject):
         self._detection_api = BoardDetectionApi()
         self._previous_boards: dict[str, ListedBoard] = dict()
         self._requested_for_refresh: list[str] = list()
+        self._requested_for_reboot: list[str] = list()
 
         self._poll_timer : QTimer | None = None
         self._poll_interval = 1000
 
         self._is_polling = False
-        self._suspend_polling = False
+        self._is_polling_suspended = False
 
     def poll_forever(self):
         self._poll_timer = QTimer()
@@ -46,7 +48,7 @@ class ThreadedBoardCommunicationWorker(QObject):
             self._poll_timer.stop()
 
     def _poll(self):
-        if self._suspend_polling:
+        if self._is_polling_suspended:
             return
 
         self._is_polling = True
@@ -65,6 +67,10 @@ class ThreadedBoardCommunicationWorker(QObject):
                 self._requested_for_refresh.remove(board.serial_port_name)
                 self.boardChanged.emit(board)
 
+            if board.serial_port_name in self._requested_for_reboot:
+                self._requested_for_reboot.remove(board.serial_port_name)
+                self.boardRebooted.emit(board)
+
         if self._previous_boards.keys() != boards.keys():
             self._previous_boards = boards
             self.boardsListed.emit(list(boards.values()))
@@ -77,11 +83,7 @@ class ThreadedBoardCommunicationWorker(QObject):
 
     @Slot(ListedBoard)
     def request_board_details(self, board: ListedBoard):
-        while self._is_polling:
-            continue
-
-        self._suspend_polling = True
-
+        self._suspend_polling()
         try:
             api = BoardApi(board.serial_port_name)
             hardware_info = api.get_hardware_info()
@@ -92,4 +94,27 @@ class ThreadedBoardCommunicationWorker(QObject):
             self.boardDetailsAcquisitionFailed.emit(str(e))
 
         finally:
-            self._suspend_polling = False
+            self._restore_polling()
+
+    @Slot(ListedBoard)
+    def request_reboot(self, board: ListedBoard):
+        self._suspend_polling()
+        try:
+            BoardApi(board.serial_port_name).reboot()
+            self._requested_for_reboot.append(board.serial_port_name)
+
+        except exceptions.UsbSerialException as e:
+            # TODO self.boardRebootRequestFailed.emit(str(e))
+            print(e)
+
+        finally:
+            self._restore_polling()
+
+    def _suspend_polling(self):
+        while self._is_polling:
+            continue
+
+        self._is_polling_suspended = True
+
+    def _restore_polling(self):
+        self._is_polling_suspended = False

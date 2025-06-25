@@ -4,6 +4,8 @@ from pyside6helpers import icons
 
 from ledboardlib import ListedBoard
 
+from ledboarddesktop.components import Components
+
 
 class BoardListItemWidget(QWidget):
 
@@ -51,7 +53,8 @@ class BoardListItemWidget(QWidget):
             self.label.setText(f"{self.board.serial_port_name} - Occupied")
 
     def _reboot(self):
-        print(f"Rebooting: {self.board.serial_port_name}")
+        self.setEnabled(False)
+        Components().board_communicator.request_board_reboot(self.board)
 
     def _upload_firmware(self):
         print(f"Uploading firmware: {self.board.serial_port_name}")

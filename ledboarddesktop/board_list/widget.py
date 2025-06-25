@@ -18,6 +18,7 @@ class BoardListWidget(QListWidget):
         board_communicator.boardDetailsAcquired.connect(lambda: self.setEnabled(True))
         board_communicator.boardDetailsAcquisitionFailed.connect(lambda: self.setEnabled(True))
         board_communicator.boardDetailsRequested.connect(lambda: self.setEnabled(False))
+        board_communicator.boardRebooted.connect(self._board_rebooted)
         board_communicator.boardsListed.connect(self.set_boards)
 
         self.setMinimumWidth(300)
@@ -67,3 +68,9 @@ class BoardListWidget(QListWidget):
         selected_board = self.selected_board()
         if selected_board is not None and selected_board.serial_port_name == board.serial_port_name:
             self.itemSelectionChanged.emit()
+
+    @Slot(ListedBoard)
+    def _board_rebooted(self, board: ListedBoard):
+        board_widget = self.board_widget(board)
+        if board_widget is not None:
+            board_widget.setEnabled(True)

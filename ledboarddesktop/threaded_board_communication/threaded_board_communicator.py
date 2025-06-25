@@ -8,9 +8,11 @@ from ledboarddesktop.threaded_board_communication.woker import ThreadedBoardComm
 class ThreadedBoardCommunicator(QObject):
 
     boardChanged = Signal(ListedBoard)
-    boardDetailsRequested = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
     boardDetailsAcquisitionFailed = Signal(str)
+    boardDetailsRequested = Signal(ListedBoard)
+    boardRebootRequested = Signal(ListedBoard)
+    boardRebooted = Signal(ListedBoard)
     boardRefreshRequested = Signal(ListedBoard)
     boardsListed = Signal(list)
 
@@ -18,12 +20,15 @@ class ThreadedBoardCommunicator(QObject):
         super().__init__()
 
         self._worker = ThreadedBoardCommunicationWorker()
-        self._worker.boardsListed.connect(self.boardsListed)
         self._worker.boardChanged.connect(self.boardChanged)
-        self.boardRefreshRequested.connect(self._worker.request_board_refresh)
-        self.boardDetailsRequested.connect(self._worker.request_board_details)
         self._worker.boardDetailsAcquired.connect(self.boardDetailsAcquired)
         self._worker.boardDetailsAcquisitionFailed.connect(self.boardDetailsAcquisitionFailed)
+        self._worker.boardsListed.connect(self.boardsListed)
+        self._worker.boardRebooted.connect(self.boardRebooted)
+
+        self.boardDetailsRequested.connect(self._worker.request_board_details)
+        self.boardRebootRequested.connect(self._worker.request_reboot)
+        self.boardRefreshRequested.connect(self._worker.request_board_refresh)
 
         self._thread = QThread()
         self._worker.moveToThread(self._thread)
@@ -40,8 +45,11 @@ class ThreadedBoardCommunicator(QObject):
         self._thread.quit()
         self._thread.wait()
 
-    def request_board_refresh(self, board: ListedBoard):
-        self.boardRefreshRequested.emit(board)
-
     def request_board_details(self, board: ListedBoard):
         self.boardDetailsRequested.emit(board)
+
+    def request_board_reboot(self, board: ListedBoard):
+        self.boardRebootRequested.emit(board)
+
+    def request_board_refresh(self, board: ListedBoard):
+        self.boardRefreshRequested.emit(board)
