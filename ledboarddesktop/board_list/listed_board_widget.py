@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton
 
-from ledboardlib import ListedBoard
 from pyside6helpers import icons
+
+from ledboardlib import ListedBoard
 
 
 class ListedBoardWidget(QWidget):

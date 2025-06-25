@@ -22,9 +22,9 @@ class Launcher:
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
 
-        self._app.aboutToQuit.connect(Components().board_detector.stop)
+        self._app.aboutToQuit.connect(Components().board_communicator.stop)
 
     def run(self):
         self._main_window.show()
-        Components().board_detector.start()
+        Components().board_communicator.start()
         self._app.exec()

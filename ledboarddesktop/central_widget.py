@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QGridLayout
 
 from ledboarddesktop.board_details_widget import BoardDetailsWidget
 from ledboarddesktop.board_list.widget import BoardListWidget
+from ledboarddesktop.components import Components
 
 
 class CentralWidget(QWidget):
@@ -19,4 +20,5 @@ class CentralWidget(QWidget):
 
     def _board_selected(self):
         board = self.board_list_widget.selected_board()
-        self.board_details_widget.set_board(board)
+        if board is not None:
+            Components().board_communicator.request_board_details(board)

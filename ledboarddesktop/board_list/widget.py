@@ -13,8 +13,12 @@ class BoardListWidget(QListWidget):
 
         self._widgets: list[ListedBoardWidget] = []
 
-        Components().board_detector.boardsPolled.connect(self.set_boards)
-        Components().board_detector.boardChanged.connect(self._board_changed)
+        board_communicator = Components().board_communicator
+        board_communicator.boardChanged.connect(self._board_changed)
+        board_communicator.boardDetailsAcquired.connect(lambda: self.setEnabled(True))
+        board_communicator.boardDetailsAcquisitionFailed.connect(lambda: self.setEnabled(True))
+        board_communicator.boardDetailsRequested.connect(lambda: self.setEnabled(False))
+        board_communicator.boardsListed.connect(self.set_boards)
 
     def board_widget(self, board: ListedBoard) -> ListedBoardWidget | None:
         for widget in self._widgets:
@@ -26,7 +30,7 @@ class BoardListWidget(QListWidget):
     def selected_board(self) -> ListedBoard:
         return self.itemWidget(self.selectedItems()[0]).board if self.selectedItems() else None
 
-    @Slot()
+    @Slot(list)
     def set_boards(self, boards: list[ListedBoard]):
         selected_board = self.selected_board()
 
@@ -52,7 +56,7 @@ class BoardListWidget(QListWidget):
         if selected_board and not self.selectedItems():
             self.itemSelectionChanged.emit()
 
-    @Slot()
+    @Slot(ListedBoard)
     def _board_changed(self, board: ListedBoard):
         board_widget = self.board_widget(board)
         if board_widget is not None:
