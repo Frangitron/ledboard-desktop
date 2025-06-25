@@ -11,6 +11,18 @@ from ledboardlib import (
 
 
 class ThreadedBoardCommunicationWorker(QObject):
+    """
+    Manages threaded communication with connected boards by continuously polling and
+    handling board-related requests, such as refreshing, rebooting, and acquiring details.
+
+    This class is designed to detect and manage boards connected to the system in a
+    thread-safe manner. It uses polling mechanisms and signals to communicate state
+    changes and events related to connected boards. The functionality includes detecting
+    board changes, responding to client requests such as rebooting or refreshing specific
+    boards, and acquiring detailed board information.
+    """
+
+    poll_interval = 1000  # Don't need to be short, Windows takes time detecting ports when plugged/rebooted
 
     boardChanged = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
@@ -29,7 +41,7 @@ class ThreadedBoardCommunicationWorker(QObject):
         self._requested_for_reboot: list[str] = list()
 
         self._poll_timer : QTimer | None = None
-        self._poll_interval = 1000
+
 
         self._is_polling = False
         self._is_polling_suspended = False
@@ -37,7 +49,7 @@ class ThreadedBoardCommunicationWorker(QObject):
     def poll_forever(self):
         self._poll_timer = QTimer()
         self._poll_timer.timeout.connect(self._poll)
-        self._poll_timer.setInterval(self._poll_interval)
+        self._poll_timer.setInterval(self.poll_interval)
         self._is_running = True
         self._poll_timer.start()
         self._poll()

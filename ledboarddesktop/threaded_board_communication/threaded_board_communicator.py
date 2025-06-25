@@ -6,6 +6,44 @@ from ledboarddesktop.threaded_board_communication.woker import ThreadedBoardComm
 
 
 class ThreadedBoardCommunicator(QObject):
+    """
+    Handles multithreaded communication with boards through signals and slots.
+
+    This class is a high-level interface to manage communication with boards, handling
+    requests for details, reboot, refresh actions, and acquiring board updates. It uses
+    PyQT's threading and signal-slot mechanisms to operate within a dedicated worker
+    thread, ensuring smooth functionality in a multithreaded environment.
+
+    Signals
+    -------
+    - boardChanged: Emitted when a board's parameters change.
+    - boardDetailsAcquired: Emitted when board details (hardware info and configuration)
+      are successfully acquired.
+    - boardDetailsAcquisitionFailed: Emitted when acquiring board details fails, carrying
+      an error message.
+    - boardDetailsRequested: Emitted to request details for a specific board.
+    - boardRebootRequested: Emitted to request a reboot for a specific board.
+    - boardRebooted: Emitted when a board reboot is completed.
+    - boardRefreshRequested: Emitted to request a data refresh for a specific board.
+    - boardsListed: Emitted when the list of detected boards is updated.
+
+    :ivar boardChanged: Signal emitted when a board's parameters change.
+    :type boardChanged: Signal
+    :ivar boardDetailsAcquired: Signal emitted when board details are acquired successfully.
+    :type boardDetailsAcquired: Signal
+    :ivar boardDetailsAcquisitionFailed: Signal emitted when acquiring board details fails.
+    :type boardDetailsAcquisitionFailed: Signal
+    :ivar boardDetailsRequested: Signal emitted when requesting details of a board.
+    :type boardDetailsRequested: Signal
+    :ivar boardRebootRequested: Signal emitted when requesting a board reboot.
+    :type boardRebootRequested: Signal
+    :ivar boardRebooted: Signal emitted when a board reboot completes.
+    :type boardRebooted: Signal
+    :ivar boardRefreshRequested: Signal emitted when requesting a board refresh.
+    :type boardRefreshRequested: Signal
+    :ivar boardsListed: Signal emitted when a new list of boards is available.
+    :type boardsListed: Signal
+    """
 
     boardChanged = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
