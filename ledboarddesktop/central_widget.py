@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QWidget, QGridLayout
 from ledboarddesktop.board_details_widget import BoardDetailsWidget
 from ledboarddesktop.board_list.widget import BoardListWidget
 from ledboarddesktop.components import Components
+from ledboarddesktop.control_parameters.widget_maker import make_control_parameter_widget
 from ledboarddesktop.firmware_selector_widget import FirmwareSelectorWidget
 
 
@@ -21,6 +22,12 @@ class CentralWidget(QWidget):
 
         self.firmware_selector_widget = FirmwareSelectorWidget()
         layout.addWidget(self.firmware_selector_widget, 1, 0, 1, 2)
+
+        self.control_parameters = make_control_parameter_widget(None)
+        self.control_parameters.valueChanged.connect(print)
+        layout.addWidget(self.control_parameters, 0, 2, 2, 1)
+
+        layout.setColumnStretch(2, 1)
 
     def _board_selected(self):
         board = self.board_list_widget.selected_board()
