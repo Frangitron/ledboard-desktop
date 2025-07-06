@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal, QThread, Qt
 
-from ledboardlib import ListedBoard, HardwareConfiguration, HardwareInfo
+from ledboardlib import ListedBoard, HardwareConfiguration, HardwareInfo, ControlParameters
 
 from ledboarddesktop.threaded_board_communication.woker import ThreadedBoardCommunicationWorker
 
@@ -46,6 +46,8 @@ class ThreadedBoardCommunicator(QObject):
     """
 
     boardChanged = Signal(ListedBoard)
+    boardControlParametersAcquired = Signal(ControlParameters)
+    boardControlParametersRequested = Signal(ListedBoard)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
     boardDetailsAcquisitionFailed = Signal(str)
     boardDetailsRequested = Signal(ListedBoard)
@@ -60,11 +62,13 @@ class ThreadedBoardCommunicator(QObject):
 
         self._worker = ThreadedBoardCommunicationWorker()
         self._worker.boardChanged.connect(self.boardChanged)
+        self._worker.boardControlParametersAcquired.connect(self.boardControlParametersAcquired)
         self._worker.boardDetailsAcquired.connect(self.boardDetailsAcquired)
         self._worker.boardDetailsAcquisitionFailed.connect(self.boardDetailsAcquisitionFailed)
-        self._worker.boardsListed.connect(self.boardsListed)
         self._worker.boardRebooted.connect(self.boardRebooted)
+        self._worker.boardsListed.connect(self.boardsListed)
 
+        self.boardControlParametersRequested.connect(self._worker.request_board_control_parameters)
         self.boardDetailsRequested.connect(self._worker.request_board_details)
         self.boardRebootRequested.connect(self._worker.request_reboot)
         self.boardRefreshRequested.connect(self._worker.request_board_refresh)
@@ -96,3 +100,6 @@ class ThreadedBoardCommunicator(QObject):
 
     def request_firmware_upload(self, board: ListedBoard, firmware_filepath: str):
         self.firmwareUploadRequested.emit(board, firmware_filepath)
+
+    def request_board_control_parameters(self, board: ListedBoard):
+        self.boardControlParametersRequested.emit(board)

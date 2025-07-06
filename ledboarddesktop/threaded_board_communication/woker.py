@@ -6,7 +6,7 @@ from ledboardlib import (
     HardwareConfiguration,
     HardwareInfo,
     ListedBoard,
-    exceptions,
+    exceptions, ControlParameters,
 )
 
 
@@ -25,6 +25,7 @@ class ThreadedBoardCommunicationWorker(QObject):
     poll_interval = 1000  # Don't need to be short, Windows takes time detecting ports when plugged/rebooted
 
     boardChanged = Signal(ListedBoard)
+    boardControlParametersAcquired = Signal(ControlParameters)
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
     boardDetailsAcquisitionFailed = Signal(str)
     boardRebooted = Signal(ListedBoard)
@@ -128,6 +129,20 @@ class ThreadedBoardCommunicationWorker(QObject):
         try:
             BoardApi(board.serial_port_name).upload_firmware(firmware_filepath)
             self._waiting_for_reboot.append(board.serial_port_name)
+
+        except exceptions.UsbSerialException as e:
+            # TODO self.boardFirmwareUploadRequestFailed.emit(str(e))
+            print(e)
+
+        finally:
+            self._restore_polling()
+
+    @Slot(ListedBoard)
+    def request_board_control_parameters(self, board: ListedBoard):
+        self._suspend_polling()
+        try:
+            control_parameters = BoardApi(board.serial_port_name).get_control_parameters()
+            self.boardControlParametersAcquired.emit(control_parameters)
 
         except exceptions.UsbSerialException as e:
             # TODO self.boardFirmwareUploadRequestFailed.emit(str(e))
