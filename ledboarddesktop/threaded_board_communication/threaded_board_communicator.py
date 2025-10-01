@@ -54,7 +54,9 @@ class ThreadedBoardCommunicator(QObject):
     boardRebootRequested = Signal(ListedBoard)
     boardRebooted = Signal(ListedBoard)
     boardRefreshRequested = Signal(ListedBoard)
+    boardSaveControlParametersRequested = Signal(ListedBoard)
     boardsListed = Signal(list)
+    controlParametersSet = Signal(ListedBoard, ControlParameters)
     firmwareUploadRequested = Signal(ListedBoard, str)
 
     def __init__(self):
@@ -72,6 +74,8 @@ class ThreadedBoardCommunicator(QObject):
         self.boardDetailsRequested.connect(self._worker.request_board_details)
         self.boardRebootRequested.connect(self._worker.request_reboot)
         self.boardRefreshRequested.connect(self._worker.request_board_refresh)
+        self.boardSaveControlParametersRequested.connect(self._worker.request_save_parameters)
+        self.controlParametersSet.connect(self._worker.set_control_parameters)
         self.firmwareUploadRequested.connect(self._worker.request_firmware_upload)
 
         self._thread = QThread()
@@ -103,3 +107,9 @@ class ThreadedBoardCommunicator(QObject):
 
     def request_board_control_parameters(self, board: ListedBoard):
         self.boardControlParametersRequested.emit(board)
+
+    def request_save_parameters(self, board: ListedBoard):
+        self.boardSaveControlParametersRequested.emit(board)
+
+    def set_control_parameters(self, board: ListedBoard, parameters: ControlParameters):
+        self.controlParametersSet.emit(board, parameters)

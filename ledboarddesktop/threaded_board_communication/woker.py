@@ -26,6 +26,7 @@ class ThreadedBoardCommunicationWorker(QObject):
 
     boardChanged = Signal(ListedBoard)
     boardControlParametersAcquired = Signal(ControlParameters)
+    boardControlParametersSaved = Signal()
     boardDetailsAcquired = Signal(HardwareInfo, HardwareConfiguration)
     boardDetailsAcquisitionFailed = Signal(str)
     boardRebooted = Signal(ListedBoard)
@@ -143,6 +144,33 @@ class ThreadedBoardCommunicationWorker(QObject):
         try:
             control_parameters = BoardApi(board.serial_port_name).get_control_parameters()
             self.boardControlParametersAcquired.emit(control_parameters)
+
+        except exceptions.UsbSerialException as e:
+            # TODO self.boardFirmwareUploadRequestFailed.emit(str(e))
+            print(e)
+
+        finally:
+            self._restore_polling()
+
+    @Slot(ListedBoard, ControlParameters)
+    def set_control_parameters(self, board: ListedBoard, parameters: ControlParameters):
+        self._suspend_polling()
+        try:
+            BoardApi(board.serial_port_name).set_control_parameters(parameters)
+
+        except exceptions.UsbSerialException as e:
+            # TODO self.boardFirmwareUploadRequestFailed.emit(str(e))
+            print(e)
+
+        finally:
+            self._restore_polling()
+
+    @Slot(ListedBoard)
+    def request_save_parameters(self, board: ListedBoard):
+        self._suspend_polling()
+        try:
+            BoardApi(board.serial_port_name).save_control_parameters()
+            self.boardControlParametersSaved.emit()
 
         except exceptions.UsbSerialException as e:
             # TODO self.boardFirmwareUploadRequestFailed.emit(str(e))
