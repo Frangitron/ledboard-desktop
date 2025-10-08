@@ -1,5 +1,5 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QVBoxLayout, QScrollArea
 
 from ledboardlib import ListedBoard, ControlParameters
 from pyside6helpers.annotated_form import AnnotatedFormWidget
@@ -23,9 +23,13 @@ class ControlParametersWidget(QWidget):
             self._selected_board
         ))
 
-        self._layout = QGridLayout(self)
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+
+        self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.addWidget(self._label)
+        self._layout.addWidget(self._scroll_area)
         self._layout.addWidget(self._save_button)
 
         Components().board_communicator.boardControlParametersAcquired.connect(self.control_parameters_acquired)
@@ -34,7 +38,7 @@ class ControlParametersWidget(QWidget):
         self._label.setVisible(True)
         self._label.setText("Control parameters")
         if self._form is not None:
-            self._layout.removeWidget(self._form)
+            self._scroll_area.setWidget(None)
             self._form.deleteLater()
             self._form = None
 
@@ -56,5 +60,5 @@ class ControlParametersWidget(QWidget):
                 parameters_
             )
         )
-        self._layout.addWidget(self._form)
+        self._scroll_area.setWidget(self._form)
         self._label.setVisible(False)
