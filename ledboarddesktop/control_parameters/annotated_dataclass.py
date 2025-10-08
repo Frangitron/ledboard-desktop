@@ -1,8 +1,11 @@
 from dataclasses import dataclass
 
-from pyside6helpers.annotated_form.types import ButtonType, IntegerSliderType, CheckBoxType, NoWidgetType
+from PySide6.QtCore import Qt
+
+from pyside6helpers.annotated_form.types import ButtonType, IntegerSliderType, CheckBoxType, NoWidgetType, RadioEnumType
 from pythonhelpers.dataclass_annotate import DataclassAnnotateMixin
 
+from ledboardlib.color_mode import ColorMode
 from ledboardlib import ControlParameters
 
 
@@ -21,7 +24,7 @@ class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
     noise_min: IntegerSliderType("Noise min", (0, 1024), group="Noise clamping")
     noise_max: IntegerSliderType("Noise max", (0, 1024), group="Noise clamping")
 
-    color_mode: NoWidgetType()
+    color_mode: RadioEnumType("Color mode", ColorMode, orientation=Qt.Horizontal, group="Color mode")
 
     noise_h: IntegerSliderType("Noise H", (0, 255), group="Noise color HSL")
     noise_s: IntegerSliderType("Noise S", (0, 255), group="Noise color HSL")
