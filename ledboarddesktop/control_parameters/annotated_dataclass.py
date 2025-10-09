@@ -11,6 +11,8 @@ from ledboardlib import ControlParameters
 
 @dataclass
 class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
+    shutter: IntegerSliderType("Shutter", (0, 255)) = 0
+
     noise_octaves: IntegerSliderType("Noise octaves", (1, 6), group="Noise")
 
     noise_scale: IntegerSliderType("Noise scale", (1, 16), group="Noise scale")
@@ -51,9 +53,6 @@ class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
     mask_x2: IntegerSliderType("Mask X2", (-255, 255), group="Mask X")
     mask_y1: IntegerSliderType("Mask Y1", (-255, 255), group="Mask Y")
     mask_y2: IntegerSliderType("Mask Y2", (-255, 255), group="Mask Y")
-
-    bat_low: CheckBoxType("Bat low", (0, 1)) = 0
-    bat_1_bar: CheckBoxType("Bat 1 bar", (0, 1)) = 0
 
     @staticmethod
     def from_base(base: ControlParameters):

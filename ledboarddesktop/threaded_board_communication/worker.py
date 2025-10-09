@@ -3,10 +3,11 @@ from PySide6.QtCore import QObject, Signal, Slot, QTimer
 from ledboardlib import (
     BoardApi,
     BoardDetectionApi,
+    ControlParameters,
     HardwareConfiguration,
     HardwareInfo,
     ListedBoard,
-    exceptions, ControlParameters,
+    exceptions,
 )
 
 
@@ -22,7 +23,7 @@ class ThreadedBoardCommunicationWorker(QObject):
     boards, and acquiring detailed board information.
     """
 
-    poll_interval = 1000  # Don't need to be short, Windows takes time detecting ports when plugged/rebooted
+    poll_interval = 1000  # Doesn't need to be short, Windows takes time detecting ports when plugged/rebooted
 
     boardChanged = Signal(ListedBoard)
     boardControlParametersAcquired = Signal(ControlParameters)

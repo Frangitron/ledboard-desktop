@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal, QThread, Qt
 
 from ledboardlib import ListedBoard, HardwareConfiguration, HardwareInfo, ControlParameters
 
-from ledboarddesktop.threaded_board_communication.woker import ThreadedBoardCommunicationWorker
+from ledboarddesktop.threaded_board_communication.worker import ThreadedBoardCommunicationWorker
 
 
 class ThreadedBoardCommunicator(QObject):
