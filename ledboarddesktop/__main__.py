@@ -1,5 +1,6 @@
 from ledboarddesktop.launcher import Launcher
 
 
-launcher = Launcher()
-launcher.run()
+if __name__ == "__main__":
+    launcher = Launcher()
+    launcher.run()

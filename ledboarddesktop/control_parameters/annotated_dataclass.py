@@ -55,6 +55,7 @@ class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
     mask_y2: IntegerSliderType("Mask Y2", (-255, 255), group="Mask Y")
 
     single_led: IntegerSliderType("Illuminate single LED", (-1, 32767), group="Scan & Debug")
+    single_led_brightness: IntegerSliderType("Single LED brightness", (0, 255), group="Scan & Debug")
 
     @staticmethod
     def from_base(base: ControlParameters):

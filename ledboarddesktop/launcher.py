@@ -26,6 +26,7 @@ class Launcher:
 
         self._app.aboutToQuit.connect(Components().board_communicator.stop)
         self._app.aboutToQuit.connect(Components().settings.save)
+        self._app.aboutToQuit.connect(Components().scan_detection.stop)
 
     def run(self):
         self._main_window.show()

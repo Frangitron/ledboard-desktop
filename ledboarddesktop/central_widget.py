@@ -1,10 +1,13 @@
 from PySide6.QtWidgets import QWidget, QGridLayout
 
+from pyside6helpers.group import make_group
+
 from ledboarddesktop.board_details_widget import BoardDetailsWidget
 from ledboarddesktop.board_list.widget import BoardListWidget
 from ledboarddesktop.components import Components
 from ledboarddesktop.control_parameters.widget import ControlParametersWidget
 from ledboarddesktop.firmware_selector_widget import FirmwareSelectorWidget
+from ledboarddesktop.scan.widget import ScanWidget
 
 
 class CentralWidget(QWidget):
@@ -13,24 +16,28 @@ class CentralWidget(QWidget):
 
         layout = QGridLayout(self)
 
-        self.board_details_widget = BoardDetailsWidget()
-        layout.addWidget(self.board_details_widget, 0, 1)
-
         self.board_list_widget = BoardListWidget()
         self.board_list_widget.itemSelectionChanged.connect(self._board_selected)
-        layout.addWidget(self.board_list_widget, 0, 0)
+        layout.addWidget(make_group("Boards", [self.board_list_widget]), 0, 0)
 
         self.firmware_selector_widget = FirmwareSelectorWidget()
-        layout.addWidget(self.firmware_selector_widget, 1, 0, 1, 2)
+        layout.addWidget(make_group("Firmware to upload", [self.firmware_selector_widget]), 1, 0)
 
-        self.control_parameters = ControlParametersWidget()
-        layout.addWidget(self.control_parameters, 0, 2, 2, 1)
+        self.board_details_widget = BoardDetailsWidget()
+        layout.addWidget(make_group("Board details", [self.board_details_widget]), 2, 0)
 
-        layout.setColumnStretch(2, 1)
+        self.control_parameters_widget = ControlParametersWidget()
+        layout.addWidget(make_group("Control Parameters", [self.control_parameters_widget]), 0, 1, 3, 1)
+
+        self.scan_widget = ScanWidget()
+        layout.addWidget(make_group("Scan", [self.scan_widget]), 0, 2, 3, 1)
+
+        layout.setColumnStretch(1, 50)
+        layout.setColumnStretch(2, 50)
 
     def _board_selected(self):
         board = self.board_list_widget.selected_board()
-        self.control_parameters.set_board(board)
+        self.control_parameters_widget.set_board(board)
 
         if board is None:
             self.board_details_widget.clear()

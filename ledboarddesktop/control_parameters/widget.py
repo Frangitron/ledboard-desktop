@@ -18,7 +18,7 @@ class ControlParametersWidget(QWidget):
 
         self._label = QLabel("Control parameters")
         self._form: AnnotatedFormWidget | None = None
-        self._save_button = QPushButton("Save")
+        self._save_button = QPushButton("Save as board default values")
         self._save_button.clicked.connect(lambda: Components().board_communicator.request_save_parameters(
             self._selected_board
         ))
