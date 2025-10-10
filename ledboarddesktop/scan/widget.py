@@ -21,7 +21,6 @@ class ScanWidget(QWidget):
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._update_timeout)
-        self._timer.start(int(1000 / 30))
 
     def _start_stop_clicked(self):
         scan_detection = Components().scan_detection
@@ -30,11 +29,14 @@ class ScanWidget(QWidget):
             if started:
                 self.button_start_stop.setText("Stop")
                 self.button_start_stop.setIcon(icons.stop())
+                self._timer.start(int(1000 / 30))
         else:
+            self._timer.stop()
             stopped = scan_detection.stop()
             if stopped:
                 self.button_start_stop.setText("Start")
                 self.button_start_stop.setIcon(icons.play_button())
+                self.viewport.clear()
 
     def _update_timeout(self):
         result = Components().scan_detection.get_latest_result()
