@@ -13,8 +13,8 @@ class Components(metaclass=SingletonMetaclass):
         self.settings = Settings()
         # FIXME move DetectorOptions to Settings
         self.scan_detection = DetectionExecutor(options=DetectorOptions(
+            average_frame_count=1,
             blur_radius=0,
-            brightness_threshold=200,
             camera_height=480,
             camera_index=0,
             camera_width=640,

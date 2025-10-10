@@ -81,6 +81,9 @@ class ScanViewport(QWidget):
         self._viewport_timer = QTimer(self)
         self._viewport_timer.timeout.connect(self._update_viewport)
 
+    def clear_viewport(self):
+        self.image_plane.setPixmap(QPixmap())
+
     def start_viewport_update_timer(self):
         self._viewport_timer.start(int(1000 / self._options.framerate))
 
