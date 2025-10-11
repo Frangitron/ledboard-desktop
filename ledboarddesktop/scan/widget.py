@@ -11,7 +11,10 @@ class ScanWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self._is_starting = False
+
         self.viewport = ScanViewport()
+        self.viewport.viewportUpdated.connect(self._viewport_updated)
         self.viewport.setEnabled(False)
 
         self.button_start_stop = QPushButton("Start")
@@ -39,11 +42,11 @@ class ScanWidget(QWidget):
     def _start_stop_clicked(self):
         scan_detection = Components().scan_detection
         if not scan_detection.is_running:
-            started = scan_detection.start()
-            if started:
-                self.viewport.setEnabled(True)
-                self.button_start_stop.setText("Stop")
-                self.button_start_stop.setIcon(icons.stop())
+            if scan_detection.start():
+                self._is_starting = True
+                self.button_start_stop.setEnabled(False)
+                self.button_start_stop.setText("Starting camera process")
+                self.button_start_stop.setIcon(icons.more())
                 self.viewport.start_viewport_update_timer()
         else:
             self.viewport.stop_viewport_update_timer()
@@ -59,3 +62,11 @@ class ScanWidget(QWidget):
         options.blur_radius = self.slider_blur.value()
         options.average_frame_count = self.slider_average.value()
         Components().scan_detection.set_options(options)
+
+    def _viewport_updated(self):
+        if self._is_starting:
+            self.button_start_stop.setEnabled(True)
+            self.button_start_stop.setText("Stop")
+            self.button_start_stop.setIcon(icons.stop())
+            self.viewport.setEnabled(True)
+            self._is_starting = False
