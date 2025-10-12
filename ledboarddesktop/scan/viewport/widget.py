@@ -14,7 +14,7 @@ from ledboarddesktop.scan.viewport.tools import ScanViewportTools
 
 
 class ScanViewport(QWidget):
-    viewportUpdated = Signal()
+    detectionResultReceived = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -105,7 +105,7 @@ class ScanViewport(QWidget):
                 scan_result.point[0],
                 scan_result.point[1]
             )
-        self.viewportUpdated.emit()
+        self.detectionResultReceived.emit()
 
     def _make_scan_result_items(self):
         pass

@@ -14,7 +14,7 @@ class ScanWidget(QWidget):
         self._is_starting = False
 
         self.viewport = ScanViewport()
-        self.viewport.viewportUpdated.connect(self._viewport_updated)
+        self.viewport.detectionResultReceived.connect(self._detection_result_received)
         self.viewport.setEnabled(False)
 
         self.button_start_stop = QPushButton("Start")
@@ -39,6 +39,20 @@ class ScanWidget(QWidget):
         layout.addWidget(self.slider_blur)
         layout.addWidget(self.button_start_stop)
 
+    def _detection_result_received(self):
+        if self._is_starting:
+            self.button_start_stop.setEnabled(True)
+            self.button_start_stop.setText("Stop")
+            self.button_start_stop.setIcon(icons.stop())
+            self.viewport.setEnabled(True)
+            self._is_starting = False
+
+    def _options_changed(self, _):
+        options = Components().scan_detection.get_options()
+        options.blur_radius = self.slider_blur.value()
+        options.average_frame_count = self.slider_average.value()
+        Components().scan_detection.set_options(options)
+
     def _start_stop_clicked(self):
         scan_detection = Components().scan_detection
         if not scan_detection.is_running:
@@ -56,17 +70,3 @@ class ScanWidget(QWidget):
             if stopped:
                 self.button_start_stop.setText("Start")
                 self.button_start_stop.setIcon(icons.play_button())
-
-    def _options_changed(self, _):
-        options = Components().scan_detection.get_options()
-        options.blur_radius = self.slider_blur.value()
-        options.average_frame_count = self.slider_average.value()
-        Components().scan_detection.set_options(options)
-
-    def _viewport_updated(self):
-        if self._is_starting:
-            self.button_start_stop.setEnabled(True)
-            self.button_start_stop.setText("Stop")
-            self.button_start_stop.setIcon(icons.stop())
-            self.viewport.setEnabled(True)
-            self._is_starting = False
