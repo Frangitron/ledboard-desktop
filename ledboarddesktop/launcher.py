@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
-from pyside6helpers import css
+from pyside6helpers import css, resources
 from pyside6helpers import icons
 from pyside6helpers.main_window import MainWindow
 
@@ -20,7 +20,9 @@ class Launcher:
         self._app.setWindowIcon(icons.print(Qt.black))
         css.load_onto(self._app)
 
-        self._main_window = MainWindow()
+        self._main_window = MainWindow(
+            logo_filepath=resources.find_from(__file__, 'frangitron-logo.png')
+        )
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
 
