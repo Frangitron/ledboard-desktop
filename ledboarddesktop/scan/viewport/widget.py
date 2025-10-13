@@ -15,6 +15,7 @@ from ledboarddesktop.scan.viewport.tools import ScanViewportTools
 
 class ScanViewport(QWidget):
     detectionResultReceived = Signal()
+    scanErrorOccurred = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -91,7 +92,13 @@ class ScanViewport(QWidget):
         self._viewport_timer.stop()
 
     def _update_viewport(self):
-        scan_result = Components().scan_detection.get_latest_result()
+        try:
+            scan_result = Components().scan_detection.get_latest_result()
+        except RuntimeError:
+            self.stop_viewport_update_timer()
+            self.scanErrorOccurred.emit()
+            return
+
         if scan_result is None:
             return
 

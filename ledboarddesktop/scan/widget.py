@@ -15,6 +15,7 @@ class ScanWidget(QWidget):
 
         self.viewport = ScanViewport()
         self.viewport.detectionResultReceived.connect(self._detection_result_received)
+        self.viewport.scanErrorOccurred.connect(self._set_start_button_start)
         self.viewport.setEnabled(False)
 
         self.button_start_stop = QPushButton("Start")
@@ -41,9 +42,7 @@ class ScanWidget(QWidget):
 
     def _detection_result_received(self):
         if self._is_starting:
-            self.button_start_stop.setEnabled(True)
-            self.button_start_stop.setText("Stop")
-            self.button_start_stop.setIcon(icons.stop())
+            self._set_start_button_stop()
             self.viewport.setEnabled(True)
             self._is_starting = False
 
@@ -58,9 +57,7 @@ class ScanWidget(QWidget):
         if not scan_detection.is_running:
             if scan_detection.start():
                 self._is_starting = True
-                self.button_start_stop.setEnabled(False)
-                self.button_start_stop.setText("Starting camera process")
-                self.button_start_stop.setIcon(icons.more())
+                self._set_start_button_starting()
                 self.viewport.start_viewport_update_timer()
         else:
             self.viewport.stop_viewport_update_timer()
@@ -68,5 +65,19 @@ class ScanWidget(QWidget):
             stopped = scan_detection.stop()
             self.viewport.clear_viewport()
             if stopped:
-                self.button_start_stop.setText("Start")
-                self.button_start_stop.setIcon(icons.play_button())
+                self._set_start_button_start()
+
+    def _set_start_button_starting(self):
+        self.button_start_stop.setEnabled(False)
+        self.button_start_stop.setText("Starting camera process")
+        self.button_start_stop.setIcon(icons.more())
+
+    def _set_start_button_start(self):
+        self.button_start_stop.setEnabled(True)
+        self.button_start_stop.setText("Start")
+        self.button_start_stop.setIcon(icons.play_button())
+
+    def _set_start_button_stop(self):
+        self.button_start_stop.setEnabled(True)
+        self.button_start_stop.setText("Stop")
+        self.button_start_stop.setIcon(icons.stop())
