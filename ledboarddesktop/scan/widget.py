@@ -1,10 +1,13 @@
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 
+from ledboardlib import ListedBoard, BoardApi
 from pyside6helpers import icons
 
 from ledboarddesktop.components import Components
 from ledboarddesktop.scan.viewport.widget import ScanViewport
 from pyside6helpers.slider import Slider
+from pyside6helpers.spinbox import SpinBox
 
 
 class ScanWidget(QWidget):
@@ -18,18 +21,24 @@ class ScanWidget(QWidget):
         self.viewport.scanErrorOccurred.connect(self._set_start_button_start)
         self.viewport.setEnabled(False)
 
-        self.button_start_stop = QPushButton("Start")
+        self.button_start_stop = QPushButton("Start Camera")
         self.button_start_stop.setIcon(icons.play_button())
         self.button_start_stop.clicked.connect(self._start_stop_clicked)
 
+        self.range_first = SpinBox(name="first LED", minimum=0, maximum=10000)
+        self.range_last = SpinBox(name="last LED", minimum=0, maximum=10000, value=360)
+        self.interval = SpinBox(name="interval (ms)", minimum=1, maximum=10000, value=2000)
+        self.button_scan = QPushButton("Scan")
+        self.button_scan.clicked.connect(self._start_scan_clicked)
+
         self.slider_blur = Slider(
             name="Blur",
-            minimum=0, maximum=20,
+            minimum=0, maximum=20, value=9,
             on_value_changed=self._options_changed
         )
         self.slider_average = Slider(
             name="Average frame count",
-            minimum=1, maximum=20,
+            minimum=1, maximum=20, value=4,
             on_value_changed=self._options_changed
         )
 
@@ -38,7 +47,20 @@ class ScanWidget(QWidget):
         layout.addWidget(self.viewport)
         layout.addWidget(self.slider_average)
         layout.addWidget(self.slider_blur)
+        layout.addWidget(self.range_first)
+        layout.addWidget(self.range_last)
+        layout.addWidget(self.interval)
+        layout.addWidget(self.button_scan)
         layout.addWidget(self.button_start_stop)
+
+        self.timer: QTimer | None = None
+        self.current_step: int | None = None
+        self.board: ListedBoard | None = None
+        self.api: BoardApi | None = None
+        self.points: list[tuple[int, int]] | None = None
+
+        self.latest_point_detected: tuple[int, int] | None = None
+        self.viewport.detectionResultReceived.connect(lambda point: setattr(self, "latest_point_detected", point))
 
     def _detection_result_received(self):
         if self._is_starting:
@@ -74,10 +96,77 @@ class ScanWidget(QWidget):
 
     def _set_start_button_start(self):
         self.button_start_stop.setEnabled(True)
-        self.button_start_stop.setText("Start")
+        self.button_start_stop.setText("Start Camera")
         self.button_start_stop.setIcon(icons.play_button())
 
     def _set_start_button_stop(self):
         self.button_start_stop.setEnabled(True)
-        self.button_start_stop.setText("Stop")
+        self.button_start_stop.setText("Stop Camera")
         self.button_start_stop.setIcon(icons.stop())
+
+    def _start_scan_clicked(self):
+        if self.timer is not None:
+            self._stop()
+        else:
+            self._start()
+
+    def _start(self):
+        board_list_widget = Components().board_list_widget
+        board_list_widget.setEnabled(False)
+        self.board = board_list_widget.selected_board()
+        if self.board is None:
+            print("No board selected")
+            return
+
+        self.api = BoardApi(self.board.serial_port_name)
+
+        self.current_step = self.range_first.value()
+        self.points = []
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._step1)
+        self.timer.start(self.interval.value() / 2)
+
+    def _step1(self):
+        if self.current_step > self.range_last.value():
+            self._stop()
+
+        self.button_scan.setText(f"Step {self.current_step}")
+        self.current_step += 1
+
+        if Components().scan_detection.is_running:
+            parameters = self.api.get_control_parameters()
+            parameters.single_led = self.current_step
+            self.api.set_control_parameters(parameters)
+            self.step2_timer = QTimer(self)
+            self.step2_timer.timeout.connect(self._step2)
+            self.step2_timer.start(self.interval.value() / 2)
+
+    def _step2(self):
+        if self.step2_timer is None:
+            return
+
+        self.step2_timer.stop()
+        self.step2_timer.deleteLater()
+        self.step2_timer = None
+
+        if self.latest_point_detected is None:
+            print("No detection result")
+            return
+
+        self.points.append(self.latest_point_detected)
+        self.viewport.add_point(self.current_step, *self.latest_point_detected)
+
+    def _stop(self):
+        self.button_scan.setText("Scan")
+        self.timer.stop()
+        self.timer.deleteLater()
+
+        self.timer = None
+        self.current_step = None
+        self.board = None
+        self.api = None
+        self.points = None
+
+        board_list_widget = Components().board_list_widget
+        board_list_widget.setEnabled(True)

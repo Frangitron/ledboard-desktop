@@ -19,6 +19,7 @@ class CentralWidget(QWidget):
         self.board_list_widget = BoardListWidget()
         self.board_list_widget.itemSelectionChanged.connect(self._board_selected)
         layout.addWidget(make_group("Boards", [self.board_list_widget]), 0, 0)
+        Components().board_list_widget = self.board_list_widget
 
         self.firmware_selector_widget = FirmwareSelectorWidget()
         layout.addWidget(make_group("Firmware to upload", [self.firmware_selector_widget]), 1, 0)

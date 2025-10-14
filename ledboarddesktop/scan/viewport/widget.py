@@ -14,7 +14,7 @@ from ledboarddesktop.scan.viewport.tools import ScanViewportTools
 
 
 class ScanViewport(QWidget):
-    detectionResultReceived = Signal()
+    detectionResultReceived = Signal(object)
     scanErrorOccurred = Signal()
 
     def __init__(self, parent=None):
@@ -93,26 +93,28 @@ class ScanViewport(QWidget):
 
     def _update_viewport(self):
         try:
-            scan_result = Components().scan_detection.get_latest_result()
+            self.last_detec = Components().scan_detection.get_latest_result()
         except RuntimeError:
             self.stop_viewport_update_timer()
             self.scanErrorOccurred.emit()
             return
 
-        if scan_result is None:
+        if self.last_detec is None:
             return
 
         pixmap = QPixmap()
-        pixmap.loadFromData(scan_result.frame_as_bytes, "JPG")
+        pixmap.loadFromData(self.last_detec.frame_as_bytes, "JPG")
         self.image_plane.setPixmap(pixmap)
 
         self._make_scan_result_items()
-        if scan_result.point is not None:
+        if self.last_detec.point is not None:
             self.detection_marker.setPos(
-                scan_result.point[0],
-                scan_result.point[1]
+                self.last_detec.point[0],
+                self.last_detec.point[1]
             )
-        self.detectionResultReceived.emit()
+        self.detectionResultReceived.emit(
+            (self.last_detec.point[0], self.last_detec.point[1])
+        )
 
     def _make_scan_result_items(self):
         pass
@@ -128,6 +130,11 @@ class ScanViewport(QWidget):
                 self._detection_points_items[detection_point.led_number] = new
                 self.scene.addItem(new)
         """
+
+    def add_point(self, i, x, y):
+        new = DetectionPointGraphicsItem()
+        new.setPos(x, y)
+        self.scene.addItem(new)
 
     def _mask_editing_changed(self, is_active):
         self.viewport_mask_drawer.is_active = is_active
