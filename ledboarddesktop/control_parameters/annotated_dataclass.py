@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import Qt
 
+from ledboardlib.mapping_mode import MappingMode
 from pyside6helpers.annotated_form.types import ButtonType, IntegerSliderType, CheckBoxType, NoWidgetType, RadioEnumType
 from pythonhelpers.dataclass_annotate import DataclassAnnotateMixin
 
@@ -13,6 +14,7 @@ from ledboardlib import ControlParameters
 class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
     dimmer: IntegerSliderType("Dimmer", (0, 255))
     shutter: IntegerSliderType("Shutter", (0, 255))
+    mapping_mode: RadioEnumType("Mapping mode", MappingMode, orientation=Qt.Horizontal)
 
     noise_octaves: IntegerSliderType("Noise octaves", (1, 6), group="Noise")
 
