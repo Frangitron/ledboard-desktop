@@ -11,6 +11,7 @@ from ledboardlib import ControlParameters
 
 @dataclass
 class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
+    dimmer: IntegerSliderType("Dimmer", (0, 255))
     shutter: IntegerSliderType("Shutter", (0, 255))
 
     noise_octaves: IntegerSliderType("Noise octaves", (1, 6), group="Noise")

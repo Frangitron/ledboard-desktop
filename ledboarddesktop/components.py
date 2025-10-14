@@ -16,6 +16,6 @@ class Components(metaclass=SingletonMetaclass):
             average_frame_count=1,
             blur_radius=0,
             camera_height=480,
-            camera_index=0,
+            camera_index=5,
             camera_width=640,
         ))
