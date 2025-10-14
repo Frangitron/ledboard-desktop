@@ -132,7 +132,7 @@ class ScanViewport(QWidget):
         """
 
     def add_point(self, i, x, y):
-        new = DetectionPointGraphicsItem()
+        new = DetectionPointGraphicsItem(i)
         new.setPos(x, y)
         self.scene.addItem(new)
 

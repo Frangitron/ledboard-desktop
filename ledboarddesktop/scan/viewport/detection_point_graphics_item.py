@@ -12,11 +12,12 @@ class DetectionPointGraphicsItem(QGraphicsEllipseItem):
         4: QColor(255, 0, 255),
     }
 
-    def __init__(self, parent=None):
+    def __init__(self, idx: int, parent=None):
         super().__init__(parent)
 
         # FIXME implement
         self.detection_point = None
+        self.idx = idx
 
         self.setRect(-3, -3, 6, 6)
         self.setFlags(

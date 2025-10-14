@@ -1,3 +1,5 @@
+import json
+
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 
@@ -27,7 +29,7 @@ class ScanWidget(QWidget):
 
         self.range_first = SpinBox(name="first LED", minimum=0, maximum=10000)
         self.range_last = SpinBox(name="last LED", minimum=0, maximum=10000, value=360)
-        self.interval = SpinBox(name="interval (ms)", minimum=1, maximum=10000, value=2000)
+        self.interval = SpinBox(name="interval (ms)", minimum=1, maximum=10000, value=1500)
         self.button_scan = QPushButton("Scan")
         self.button_scan.clicked.connect(self._start_scan_clicked)
 
@@ -125,11 +127,12 @@ class ScanWidget(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self._step1)
-        self.timer.start(self.interval.value() / 2)
+        self.timer.start(self.interval.value() * 2 / 3)
 
     def _step1(self):
         if self.current_step > self.range_last.value():
             self._stop()
+            return
 
         self.button_scan.setText(f"Step {self.current_step}")
         self.current_step += 1
@@ -140,7 +143,7 @@ class ScanWidget(QWidget):
             self.api.set_control_parameters(parameters)
             self.step2_timer = QTimer(self)
             self.step2_timer.timeout.connect(self._step2)
-            self.step2_timer.start(self.interval.value() / 2)
+            self.step2_timer.start(self.interval.value() / 3)
 
     def _step2(self):
         if self.step2_timer is None:
@@ -166,7 +169,10 @@ class ScanWidget(QWidget):
         self.current_step = None
         self.board = None
         self.api = None
-        self.points = None
 
         board_list_widget = Components().board_list_widget
         board_list_widget.setEnabled(True)
+
+        with open("detec.json", "w") as file:
+            json.dump(self.points, file, indent=2)
+            self.points = None
