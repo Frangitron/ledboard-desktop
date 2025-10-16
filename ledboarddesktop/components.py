@@ -12,7 +12,6 @@ class Components(metaclass=SingletonMetaclass):
         self.board_list_widget = None
         self.board_communicator = ThreadedBoardCommunicator()
         self.settings = Settings()
-        self.emulator = None
         # FIXME move DetectorOptions to Settings
         self.scan_detection = DetectionExecutor(options=DetectorOptions(
             average_frame_count=4,

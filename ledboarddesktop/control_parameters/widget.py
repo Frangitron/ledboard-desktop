@@ -82,8 +82,5 @@ class ControlParametersWidget(QWidget):
                 parameters_
             )
         )
-        self._form.valueChanged.connect(
-            lambda parameters_: Components().emulator.set_control_params(parameters_)
-        )
         self._scroll_area.setWidget(self._form)
         self._label.setVisible(False)
