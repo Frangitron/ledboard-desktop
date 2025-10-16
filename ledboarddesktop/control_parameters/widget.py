@@ -1,10 +1,15 @@
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QVBoxLayout, QScrollArea
+import os.path
 
-from ledboardlib import ListedBoard, ControlParameters
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QScrollArea
+
+from pyside6helpers import icons
 from pyside6helpers.annotated_form import AnnotatedFormWidget
 
+from ledboardlib import ListedBoard, ControlParameters
+
 from ledboarddesktop.components import Components
+from ledboarddesktop.control_parameters.annotated_dataclass import UiControlParameters
 from ledboarddesktop.control_parameters.widget_maker import make_control_parameter_widget
 
 
@@ -16,27 +21,34 @@ class ControlParametersWidget(QWidget):
         # FIXME store that info elsewhere ?
         self._selected_board: ListedBoard | None = None
 
-        self._label = QLabel("Control parameters")
-        self._form: AnnotatedFormWidget | None = None
-        self._save_button = QPushButton("Save as board default values")
-        self._save_button.clicked.connect(lambda: Components().board_communicator.request_save_parameters(
-            self._selected_board
-        ))
+        self._label = QLabel("No board selected")
+        self._form: AnnotatedFormWidget[UiControlParameters] | None = None
+        self._button_save_to_board_defaults = QPushButton("Save as board default values")
+        self._button_save_to_board_defaults.setIcon(icons.diskette())
+        self._button_save_to_board_defaults.clicked.connect(
+            lambda: Components().board_communicator.request_save_parameters(
+                self._selected_board
+            )
+        )
+        self._button_save_to_emulator = QPushButton("Save as emulator default values")
+        self._button_save_to_emulator.setIcon(icons.laptop())
+        self._button_save_to_emulator.clicked.connect(self._save_to_emulator_defaults)
 
         self._scroll_area = QScrollArea()
         self._scroll_area.setWidgetResizable(True)
 
-        self._layout = QVBoxLayout(self)
+        self._layout = QGridLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.addWidget(self._label)
-        self._layout.addWidget(self._scroll_area)
-        self._layout.addWidget(self._save_button)
+        self._layout.addWidget(self._label, 0, 0, 1, 2)
+        self._layout.addWidget(self._scroll_area, 1, 0, 1, 2)
+        self._layout.addWidget(self._button_save_to_board_defaults, 2, 0)
+        self._layout.addWidget(self._button_save_to_emulator, 2, 1)
 
         Components().board_communicator.boardControlParametersAcquired.connect(self.control_parameters_acquired)
 
     def clear(self):
         self._label.setVisible(True)
-        self._label.setText("Control parameters")
+        self._label.setText("No board selected")
         if self._form is not None:
             self._scroll_area.setWidget(None)
             self._form.deleteLater()
@@ -50,6 +62,16 @@ class ControlParametersWidget(QWidget):
         if board is not None:
             self._label.setText("Waiting for response...")
             Components().board_communicator.request_board_control_parameters(board)
+
+    def _save_to_emulator_defaults(self):
+        if self._form is None:
+            return
+
+        parameters = self._form.value()
+        filepath = os.path.abspath("emulator_defaults.json")
+        with open(filepath, "w") as file:
+            file.write(parameters.to_json(indent=2))
+        print(f"Current control parameters saved to {filepath}")
 
     @Slot(ControlParameters)
     def control_parameters_acquired(self, parameters: ControlParameters):

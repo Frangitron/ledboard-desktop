@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from dataclasses_json import dataclass_json
 from PySide6.QtCore import Qt
 
 from ledboardlib.mapping_mode import MappingMode
@@ -10,6 +11,7 @@ from ledboardlib.color_mode import ColorMode
 from ledboardlib import ControlParameters
 
 
+@dataclass_json
 @dataclass
 class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
     dimmer: IntegerSliderType("Dimmer", (0, 255))
