@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QScroll
 from pyside6helpers import icons
 from pyside6helpers.annotated_form import AnnotatedFormWidget
 
-from ledboardlib import ListedBoard, ControlParameters
+from ledboardlib import ListedBoard, ControlParameters, InteropDataStore
 
 from ledboarddesktop.components import Components
 from ledboarddesktop.control_parameters.annotated_dataclass import UiControlParameters
@@ -67,11 +67,11 @@ class ControlParametersWidget(QWidget):
         if self._form is None:
             return
 
-        parameters = self._form.value()
-        filepath = os.path.abspath("emulator_defaults.json")
-        with open(filepath, "w") as file:
-            file.write(parameters.to_json(indent=2))
-        print(f"Current control parameters saved to {filepath}")
+        interop_store = InteropDataStore(
+            "C:/Users/Ourson/PROJETS/ledboard/ledboard-translator-emulator/ledboardtranslatoremulator/resources/interop-data-melinerion.json"
+        )
+        interop_store.data.default_control_parameters = self._form.value()
+        interop_store.save()
 
     @Slot(ControlParameters)
     def control_parameters_acquired(self, parameters: ControlParameters):
