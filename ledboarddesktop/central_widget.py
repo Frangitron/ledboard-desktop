@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QWidget, QGridLayout
 
-from ledboarddesktop.emulator import LedRendererEmulator
 from pyside6helpers.group import make_group
 
 from ledboarddesktop.board_details_widget import BoardDetailsWidget
@@ -32,11 +31,7 @@ class CentralWidget(QWidget):
         layout.addWidget(make_group("Control Parameters", [self.control_parameters_widget]), 0, 1, 3, 1)
 
         self.scan_widget = ScanWidget()
-        #layout.addWidget(make_group("Scan", [self.scan_widget]), 0, 2, 3, 1)
-
-        self.emulator = LedRendererEmulator()
-        layout.addWidget(make_group("Emulator", [self.emulator]), 0, 2)
-        Components().emulator = self.emulator
+        layout.addWidget(make_group("Scan", [self.scan_widget]), 0, 2, 3, 1)
 
         layout.setColumnStretch(1, 50)
         layout.setColumnStretch(2, 50)
