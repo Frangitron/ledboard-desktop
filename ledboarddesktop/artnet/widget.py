@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
-from ledboarddesktop.artnet.broadcaster import ArtnetBroadcaster, ArtnetUniverse
+from pythonartnet.broadcaster import ArtnetBroadcaster
+
 from pyside6helpers.slider import Slider
 
 

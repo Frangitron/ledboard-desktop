@@ -32,10 +32,10 @@ class CentralWidget(QWidget):
         layout.addWidget(make_group("Control Parameters", [self.control_parameters_widget]), 0, 1, 3, 1)
 
         self.scan_widget = ScanWidget()
-        layout.addWidget(make_group("Scan", [self.scan_widget]), 0, 2, 3, 1)
+        #layout.addWidget(make_group("Scan", [self.scan_widget]), 0, 2, 3, 1)
 
         self.emulator = LedRendererEmulator()
-        layout.addWidget(make_group("Emulator", [self.emulator]), 0, 3)
+        layout.addWidget(make_group("Emulator", [self.emulator]), 0, 2)
         Components().emulator = self.emulator
 
         layout.setColumnStretch(1, 50)

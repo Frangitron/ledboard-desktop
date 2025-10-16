@@ -1,10 +1,11 @@
 [build-system]
 requires = [
     "PySide6",
+    "pythonartnet @ https://github.com/Frangitron/python-artnet @ main",
     "dataclasses_json",
-    "ledboardlib@git+https://github.com/Frangitron/ledboard-lib@main",
-    "pyside6-helpers@git+https://github.com/MrFrangipane/pyside6-helpers@main",
-    "setuptools>=46.0",
+    "ledboardlib @ git+https://github.com/Frangitron/ledboard-lib @ main",
+    "pyside6-helpers @ git+https://github.com/MrFrangipane/pyside6-helpers @ main",
+    "setuptools>=46.0"
 ]
 build-backend = "setuptools.build_meta"
 
