@@ -1,4 +1,5 @@
 from PySide6.QtCore import Slot, Qt
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QListWidgetItem, QListWidget
 
 from ledboardlib import ListedBoard
@@ -32,6 +33,12 @@ class BoardListWidget(QListWidget):
 
     def selected_board(self) -> ListedBoard:
         return self.itemWidget(self.selectedItems()[0]).board if self.selectedItems() else None
+
+    def mousePressEvent(self, event: QMouseEvent):
+        item_at_pos = self.itemAt(event.pos())
+        if not item_at_pos:
+            self.clearSelection()
+        super().mousePressEvent(event)
 
     @Slot(list)
     def set_boards(self, boards: list[ListedBoard]):
