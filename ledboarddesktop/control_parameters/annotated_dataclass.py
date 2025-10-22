@@ -14,6 +14,8 @@ from ledboardlib import ControlParameters
 @dataclass_json
 @dataclass
 class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
+    dmx_enabled: CheckBoxType("Enable DMX", (0, 1))
+
     dimmer: IntegerSliderType("Dimmer", (0, 255))
     shutter: IntegerSliderType("Shutter", (0, 255))
     mapping_mode: RadioEnumType("Mapping mode", MappingMode, orientation=Qt.Horizontal)
