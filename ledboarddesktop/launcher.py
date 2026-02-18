@@ -1,3 +1,5 @@
+from importlib.resources import files
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
@@ -21,7 +23,7 @@ class Launcher:
         css.load_onto(self._app)
 
         self._main_window = MainWindow(
-            logo_filepath=resources.find_from(__file__, 'frangitron-logo.png')
+            logo_filepath=files('ledboarddesktop.resources').joinpath('frangitron-logo.png')
         )
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
