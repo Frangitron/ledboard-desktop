@@ -16,7 +16,7 @@ from ledboarddesktop.control_parameters.widget_maker import make_control_paramet
 
 class ControlParametersWidget(QWidget):
 
-    _interop_filepath = "C:/Users/Ourson/PROJETS/ledboard/ledboard-translator-emulator/ledboardtranslatoremulator/resources/interop-data-melinerion.json"
+    _interop_filepath = "C:/Users/Ourson/PROJETS/ledboard/ledboard-translator-emulator/ledboardtranslatoremulator/resources/interop-data-elephanz.json"
 
     def __init__(self, parent=None):
         super().__init__(parent)
