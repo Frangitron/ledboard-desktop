@@ -61,6 +61,8 @@ class UiControlParameters(ControlParameters, DataclassAnnotateMixin):
     mask_y1: IntegerSliderType("Mask Y1", (-255, 255), group="Mask Y")
     mask_y2: IntegerSliderType("Mask Y2", (-255, 255), group="Mask Y")
 
+    strand_mask: IntegerSliderType("Strand mask", (0, 8), group="Mask Strand (0 means no masking)")
+
     single_led: IntegerSliderType("Illuminate single LED", (-1, 32767), group="Scan & Debug")
     single_led_brightness: IntegerSliderType("Single LED brightness", (0, 255), group="Scan & Debug")
 
