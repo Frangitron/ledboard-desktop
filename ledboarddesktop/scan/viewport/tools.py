@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QSpinBox
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QSpinBox, QLabel
 
 from pyside6helpers import icons
 from pyside6helpers.frame import make_h_line
@@ -12,6 +12,9 @@ class ScanViewportTools(QWidget):
     maskToggleVisible = Signal(bool)
     saveScanEditsClicked = Signal()
     assignSegmentIndex = Signal(int)
+    selectedPointIndexChanged = Signal(int)
+    deleteSelectedClicked = Signal()
+    quantizePositionsClicked = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -48,6 +51,20 @@ class ScanViewportTools(QWidget):
         self.button_assign_segment_index.setToolTip("Assigns segment index to selected detection points")
         self.button_assign_segment_index.clicked.connect(self._assign_segment_index)
 
+        self.spin_selected_point_index = QSpinBox()
+        self.spin_selected_point_index.setRange(-1, 4000)
+        self.spin_selected_point_index.setToolTip("Selected point index")
+
+        self.button_delete_selected = QPushButton("Delete selected")
+        self.button_delete_selected.setIcon(icons.trash())
+        self.button_delete_selected.setToolTip("Delete selected point(s)")
+        self.button_delete_selected.clicked.connect(self.deleteSelectedClicked)
+
+        self.button_quantize_positions = QPushButton("Quantize positions")
+        self.button_quantize_positions.setIcon(icons.equalizer())
+        self.button_quantize_positions.setToolTip("Quantize selected points positions")
+        self.button_quantize_positions.clicked.connect(self.quantizePositionsClicked)
+
         #
         # Layout
         layout = QVBoxLayout(self)
@@ -67,6 +84,12 @@ class ScanViewportTools(QWidget):
         layout.addWidget(make_h_line())
         layout.addWidget(self.button_save_scan_edits)
 
+        layout.addWidget(make_h_line())
+        layout.addWidget(QLabel("Selected point:"))
+        layout.addWidget(self.spin_selected_point_index)
+        layout.addWidget(self.button_delete_selected)
+        layout.addWidget(self.button_quantize_positions)
+
         layout.addWidget(QWidget())
         layout.setStretch(layout.count() - 1, 100)
 
@@ -75,6 +98,7 @@ class ScanViewportTools(QWidget):
         self.button_mask_edit.clicked.connect(self.maskEditingChanged)
         self.button_mask_reset.clicked.connect(self.maskResetClicked)
         self.button_save_scan_edits.clicked.connect(self.saveScanEditsClicked)
+        self.spin_selected_point_index.valueChanged.connect(self.selectedPointIndexChanged)
 
     def _mask_toggle_visible(self):
         checked = self.button_mask_toggle_visible.isChecked()

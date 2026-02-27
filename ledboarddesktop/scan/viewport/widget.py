@@ -11,6 +11,8 @@ from ledboarddesktop.scan.viewport.interactors.mask_drawer import MaskDrawer
 from ledboarddesktop.scan.viewport.interactors.navigator import Navigator
 from ledboarddesktop.scan.viewport.options import ScanViewportOptions
 from ledboarddesktop.scan.viewport.tools import ScanViewportTools
+from ledboardlib.scan.detection_point import DetectionPoint
+from ledboardlib.scan.quantizer import DetectionPointsQuantizer
 
 
 class ScanViewport(QWidget):
@@ -24,6 +26,7 @@ class ScanViewport(QWidget):
             framerate=30,
         )
         self._detection_points_items: dict[int, DetectionPointGraphicsItem] = dict()
+        self._detection_point_graphic_items: dict[int, DetectionPointGraphicsItem] = dict()
 
         #
         # Widgets
@@ -76,11 +79,17 @@ class ScanViewport(QWidget):
         self.tools.maskToggleVisible.connect(self._mask_toggle_visible)
         self.tools.saveScanEditsClicked.connect(self._save_scan_edits)
         self.tools.assignSegmentIndex.connect(self._assign_segment_index)
+        self.tools.selectedPointIndexChanged.connect(self._selected_point_index_changed)
+        self.tools.deleteSelectedClicked.connect(self._delete_selected_clicked)
+        self.tools.quantizePositionsClicked.connect(self._quantize_positions_clicked)
 
         #
         # Timers
         self._viewport_timer = QTimer(self)
         self._viewport_timer.timeout.connect(self._update_viewport)
+
+    def get_detection_points(self) -> list[DetectionPoint]:
+        return list([point.detection_point for point in self._detection_point_graphic_items.values()])
 
     def clear_viewport(self):
         self.image_plane.setPixmap(QPixmap())
@@ -135,6 +144,7 @@ class ScanViewport(QWidget):
         new = DetectionPointGraphicsItem(i)
         new.setPos(x, y)
         self.scene.addItem(new)
+        self._detection_point_graphic_items[i] = new
 
     def _mask_editing_changed(self, is_active):
         self.viewport_mask_drawer.is_active = is_active
@@ -154,9 +164,15 @@ class ScanViewport(QWidget):
         #self.viewport_mask_drawer.set_mask(scan_api.get_mask())  # FIXME: create ViewportMaskDrawer.load_from_client() ?
 
     def clear_detection_points(self):
+        for item in self._detection_point_graphic_items.values():
+            if isinstance(item, DetectionPointGraphicsItem):
+                self.scene.removeItem(item)
+        self._detection_point_graphic_items = dict()
+        """
         for item in self._detection_points_items.values():
             self.scene.removeItem(item)
         self._detection_points_items = dict()
+        """
 
     def _update_horizontal_line(self):  # FIXME: do better
         self.horizontal_line.setRect(
@@ -186,3 +202,53 @@ class ScanViewport(QWidget):
 
             detection_point_item.detection_point.assigned_segment_number = index
             detection_point_item.update()
+
+    def _selected_point_index_changed(self, index):
+        if index >= len(self._detection_point_graphic_items):
+            return
+
+        self.scene.clearSelection()
+        if index == -1:
+            return
+
+        point = self._detection_point_graphic_items[index]
+        point.setSelected(True)
+
+    def _delete_selected_clicked(self):
+        indices_to_delete = list()
+        for led_number, detection_point_item in self._detection_point_graphic_items.items():
+            if detection_point_item.isSelected():
+                self.scene.removeItem(detection_point_item)
+                indices_to_delete.append(led_number)
+
+        for index in indices_to_delete:
+            self._detection_point_graphic_items.pop(index)
+
+    def _quantize_positions_clicked(self):
+        if not self.scene.selectedItems():
+            detection_points = [
+                DetectionPoint(
+                    led_index=led_index,
+                    x=point.x(),
+                    y=point.y()
+                )
+                for led_index, point in self._detection_point_graphic_items.items()
+            ]
+        else:
+            detection_points = [
+                DetectionPoint(
+                    led_index=led_index,
+                    x=point.x(),
+                    y=point.y()
+                )
+                for led_index, point in self._detection_point_graphic_items.items() if point.isSelected()
+            ]
+
+        quantizer = DetectionPointsQuantizer(detection_points)
+        smoothed_points = quantizer.quantize()
+        for smoothed_point in smoothed_points:
+            self._detection_point_graphic_items[smoothed_point.led_index].setPos(
+                smoothed_point.x,
+                smoothed_point.y,
+            )
+            self._detection_point_graphic_items[smoothed_point.led_index].detection_point = smoothed_point

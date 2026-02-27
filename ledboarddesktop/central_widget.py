@@ -18,23 +18,47 @@ class CentralWidget(QWidget):
 
         self.board_list_widget = BoardListWidget()
         self.board_list_widget.itemSelectionChanged.connect(self._board_selected)
-        layout.addWidget(make_group("Boards", [self.board_list_widget]), 0, 0)
+        layout.addWidget(make_group(
+            "Boards",
+            [self.board_list_widget], fixed_width=400),
+            0, 0
+        )
         Components().board_list_widget = self.board_list_widget
 
         self.firmware_selector_widget = FirmwareSelectorWidget()
-        layout.addWidget(make_group("Firmware to upload", [self.firmware_selector_widget]), 1, 0)
+        layout.addWidget(make_group(
+            "Firmware to upload",
+            [self.firmware_selector_widget],
+            fixed_width=400),
+            1, 0
+        )
 
         self.board_details_widget = BoardDetailsWidget()
-        layout.addWidget(make_group("Board details", [self.board_details_widget]), 2, 0)
+        layout.addWidget(make_group(
+            "Board details",
+            [self.board_details_widget],
+            fixed_width=400),
+            2, 0
+        )
 
         self.control_parameters_widget = ControlParametersWidget()
-        layout.addWidget(make_group("Control Parameters", [self.control_parameters_widget]), 0, 1, 3, 1)
+        layout.addWidget(make_group(
+            "Control Parameters",
+            [self.control_parameters_widget],
+            with_checkbox=True),
+            0, 1, 3, 1
+        )
 
         self.scan_widget = ScanWidget()
-        layout.addWidget(make_group("Scan", [self.scan_widget]), 0, 2, 3, 1)
+        layout.addWidget(make_group(
+            "Scan",
+            [self.scan_widget],
+            with_checkbox=True),
+            0, 2, 3, 1
+        )
 
-        layout.setColumnStretch(1, 50)
-        layout.setColumnStretch(2, 50)
+        #layout.setColumnStretch(1, 50)
+        #layout.setColumnStretch(2, 50)
 
     def _board_selected(self):
         board = self.board_list_widget.selected_board()

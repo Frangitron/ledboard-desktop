@@ -28,7 +28,9 @@ class DetectionPointGraphicsItem(QGraphicsEllipseItem):
     def paint(self, painter, option, widget=None):
         pen = QPen()
         pen.setWidth(2)
-        #pen.setColor(self.IndexedColors[self.detection_point.assigned_segment_number])
-        pen.setColor(QColor(255, 255, 0))
+        if self.isSelected():
+            pen.setColor(self.IndexedColors[0])
+        else:
+            pen.setColor(self.IndexedColors[1])
         self.setPen(pen)
         QGraphicsEllipseItem.paint(self, painter, option, widget)

@@ -1,9 +1,10 @@
 import json
+from importlib import resources
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog
 
-from ledboardlib import ListedBoard, BoardApi
+from ledboardlib import ListedBoard, BoardApi, InteropDataStore, SamplingPoint
 from pyside6helpers import icons
 
 from ledboarddesktop.components import Components
@@ -23,15 +24,23 @@ class ScanWidget(QWidget):
         self.viewport.scanErrorOccurred.connect(self._set_start_button_start)
         self.viewport.setEnabled(False)
 
-        self.button_start_stop = QPushButton("Start Camera")
-        self.button_start_stop.setIcon(icons.play_button())
-        self.button_start_stop.clicked.connect(self._start_stop_clicked)
-
         self.range_first = SpinBox(name="first LED", minimum=0, maximum=10000)
         self.range_last = SpinBox(name="last LED", minimum=0, maximum=10000, value=360)
         self.interval = SpinBox(name="interval (ms)", minimum=1, maximum=10000, value=1500)
         self.button_scan = QPushButton("Scan")
         self.button_scan.clicked.connect(self._start_scan_clicked)
+
+        self.button_start_stop = QPushButton("Start Camera")
+        self.button_start_stop.setIcon(icons.play_button())
+        self.button_start_stop.clicked.connect(self._start_stop_clicked)
+
+        self.button_load_scan_data = QPushButton("Load scan data...")
+        self.button_load_scan_data.setIcon(icons.file())
+        self.button_load_scan_data.clicked.connect(self._load_scan_data_clicked)
+
+        self.button_save_scan_data = QPushButton("Save scan data to interop")
+        self.button_save_scan_data.setIcon(icons.diskette())
+        self.button_save_scan_data.clicked.connect(self._save_scan_data_clicked)
 
         self.slider_blur = Slider(
             name="Blur",
@@ -54,6 +63,8 @@ class ScanWidget(QWidget):
         layout.addWidget(self.interval)
         layout.addWidget(self.button_scan)
         layout.addWidget(self.button_start_stop)
+        layout.addWidget(self.button_load_scan_data)
+        layout.addWidget(self.button_save_scan_data)
 
         self.timer: QTimer | None = None
         self.current_step: int | None = None
@@ -176,3 +187,25 @@ class ScanWidget(QWidget):
         with open("detec.json", "w") as file:
             json.dump(self.points, file, indent=2)
             self.points = None
+
+    def _load_scan_data_clicked(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Load scan data", "", "JSON files (*.json)")
+        if not file_path:
+            return
+
+        with open(file_path, "r") as file:
+            self.points = json.load(file)
+            self.viewport.clear_detection_points()
+            for i, point in enumerate(self.points):
+                self.viewport.add_point(i, *point)
+
+    def _save_scan_data_clicked(self):
+        points = self.viewport.get_detection_points()
+
+        interop_filepath = str(resources.files("ledboardtranslatoremulator.resources").joinpath("interop-data-elephanz.json"))
+        interop_store = InteropDataStore(interop_filepath)
+        for sampling_point in interop_store.data.sampling_points:
+            sampling_point.x = int(points[sampling_point.index].x)
+            sampling_point.y = int(points[sampling_point.index].y)
+        interop_store._filepath = interop_filepath.replace(".json", "-quantized.json")
+        interop_store.save()
